@@ -6,7 +6,7 @@ use axum::{routing::get, Router};
 async fn main() {
     let app = Router::new().route(
         "/",
-        get(|| async { "Chef in Google says hello, Axum World!" }),
+        get(|| async { "You've found your waypoint, Axum." }),
     );
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
