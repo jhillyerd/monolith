@@ -1,6 +1,6 @@
 use lettre::{AsyncTransport, Message};
 
-async fn send_alert<T>(mailer: &T, subject: &str, body: &str) -> anyhow::Result<()>
+pub async fn send_alert<T>(mailer: &T, subject: &str, body: &str) -> anyhow::Result<()>
 where
     T: AsyncTransport + Send + Sync,
     <T as AsyncTransport>::Error: 'static + Send + Sync,
@@ -12,8 +12,6 @@ where
         .subject(subject)
         .body(body.to_string())?;
 
-    // let mailer = SmtpTransport::builder_dangerous("nexus.home.arpa:25").build();
-
     mailer.send(email).await?;
 
     Ok(())
@@ -21,7 +19,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use lettre::{address::Envelope, transport::stub::AsyncStubTransport};
+    use lettre::transport::stub::AsyncStubTransport;
 
     use super::*;
 
