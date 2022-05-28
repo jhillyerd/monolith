@@ -20,6 +20,9 @@
           devShell = pkgs.mkShell {
             buildInputs = with pkgs; [
               nomad
+              openssl_3_0.dev
+              unstable.cargo-edit
+              unstable.pkg-config
               unstable.rustup
               unstable.waypoint
             ];
