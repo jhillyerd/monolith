@@ -2,12 +2,12 @@ use axum::{http::StatusCode, response::IntoResponse, routing::post, Extension, J
 use lettre::{AsyncSmtpTransport, Tokio1Executor};
 use serde::Deserialize;
 
-use crate::svc;
+use crate::{settings::Settings, svc};
 
 type SmtpTx = AsyncSmtpTransport<Tokio1Executor>;
 
-pub fn router() -> Router {
-    let mailer: SmtpTx = SmtpTx::builder_dangerous("nexus.home.arpa").build();
+pub fn router(settings: &Settings) -> Router {
+    let mailer: SmtpTx = SmtpTx::builder_dangerous(&settings.mail.host).build();
 
     Router::new()
         .route("/mail", post(mail))

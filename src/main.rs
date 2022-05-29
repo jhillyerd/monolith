@@ -3,7 +3,10 @@ use std::net::SocketAddr;
 use axum::{routing::get, Router};
 use tracing_subscriber::{prelude::*, EnvFilter};
 
+use crate::settings::Settings;
+
 mod notify;
+mod settings;
 mod svc;
 
 #[tokio::main]
@@ -17,13 +20,16 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer().with_target(false))
         .init();
 
+    // Loading settings.
+    let settings = Settings::new().expect("can load settings");
+
     // Configure base router.
     let app = Router::new()
-        .nest("/notify", notify::router())
+        .nest("/notify", notify::router(&settings))
         .route("/", get(|| async { "You've found your waypoint, Axum." }));
 
     // Launch server.
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+    let addr = SocketAddr::from(([0, 0, 0, 0], settings.server.port));
     tracing::info!("Starting server on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
