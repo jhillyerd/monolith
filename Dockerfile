@@ -17,4 +17,6 @@ RUN cargo build --release --bin monolith
 FROM gcr.io/distroless/cc-debian11:debug
 WORKDIR app
 COPY --from=builder /app/target/release/monolith .
+COPY settings.toml .
+
 ENTRYPOINT ["/app/monolith"]
