@@ -27,12 +27,22 @@ job "monolith" {
       ]
 
       check {
-        name = "Monolith HTTP Check"
+        name = "HTTP Check"
         type = "http"
         path = "/"
         interval = "10s"
         timeout = "2s"
       }
+    }
+
+    update {
+      max_parallel = 1
+      canary = 1
+      auto_promote = false
+      auto_revert = true
+      min_healthy_time = "30s"
+      healthy_deadline = "1m"
+      progress_deadline = "5m"
     }
 
     task "monolith" {
@@ -41,10 +51,6 @@ job "monolith" {
       config {
         image = "${artifact.image}:${artifact.tag}"
         ports = ["http"]
-
-        volumes = [
-          "../alloc/data/monolith_storage:/storage"
-        ]
       }
 
       env {

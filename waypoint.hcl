@@ -8,7 +8,7 @@ app "monolith" {
     registry {
       use "docker" {
         image = "dockreg.bytemonkey.org/monolith"
-        tag = "edge"
+        tag = gitrefpretty()
       }
     }
   }
