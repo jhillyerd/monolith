@@ -14,8 +14,14 @@ app "monolith" {
   }
 
   deploy {
-    use "nomad" {
-      datacenter = "skynet"
+    use "nomad-jobspec" {
+      jobspec = templatefile("${path.app}/etc/monolith.nomad.tpl")
+    }
+  }
+
+  release {
+    use "nomad-jobspec-canary" {
+      groups = ["monolith"]
     }
   }
 }
