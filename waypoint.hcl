@@ -4,9 +4,18 @@ project = "monolith"
 app "monolith" {
   build {
     use "docker" {}
+
+    registry {
+      use "docker" {
+        image = "dockreg.bytemonkey.org/monolith"
+        tag = "edge"
+      }
+    }
   }
 
   deploy {
-    use "docker" {}
+    use "nomad" {
+      datacenter = "skynet"
+    }
   }
 }
