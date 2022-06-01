@@ -9,8 +9,9 @@ RUN cargo chef prepare --recipe-path recipe.json
 FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 # Build test & release dependencies - this is the caching layer!
-RUN cargo chef cook --recipe-path recipe.json
-RUN cargo chef cook --release --recipe-path recipe.json
+RUN cargo chef cook --recipe-path recipe.json | tee /tmp/cook.txt
+RUN cargo chef cook --release --recipe-path recipe.json | tee /tmp/cook.txt
+
 # Build & test application
 COPY . .
 RUN cargo test
