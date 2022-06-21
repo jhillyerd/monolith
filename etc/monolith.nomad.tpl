@@ -35,16 +35,6 @@ job "monolith" {
       }
     }
 
-    update {
-      max_parallel = 1
-      canary = 1
-      auto_promote = false
-      auto_revert = true
-      min_healthy_time = "30s"
-      healthy_deadline = "1m"
-      progress_deadline = "5m"
-    }
-
     task "monolith" {
       driver = "docker"
 
