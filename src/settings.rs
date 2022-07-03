@@ -12,9 +12,16 @@ pub struct Mail {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+pub struct HomeAssistant {
+    pub url: String,
+    pub token: String,
+}
+
+#[derive(Debug, Deserialize, Clone)]
 pub struct Settings {
     pub server: Server,
     pub mail: Mail,
+    pub home_assistant: HomeAssistant,
 }
 
 const CONFIG_FILE: &str = "settings.toml";

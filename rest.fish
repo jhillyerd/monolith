@@ -13,3 +13,13 @@ function r-notify-mail
 
   do_curl POST /notify/mail $headers $data
 end
+
+function r-notify-text
+  set headers "Content-Type: application/json"
+  set data '{
+    "subject": "test note",
+    "body": "message body"
+  }'
+
+  do_curl POST /notify/text $headers $data
+end

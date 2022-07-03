@@ -1,0 +1,9 @@
+[server]
+port = 3000
+
+[mail]
+host = "mail.home.arpa"
+
+[home_assistant]
+url = "http://homeassistant.home.arpa:8123"
+token = "<long-lived access token>"
