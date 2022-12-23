@@ -1,12 +1,14 @@
 use std::net::SocketAddr;
 
 use axum::{routing::get, Router};
+use sqlx::postgres::PgPoolOptions;
 use tracing_subscriber::{prelude::*, EnvFilter};
 
 use crate::settings::Settings;
 
 mod notify;
 mod settings;
+mod shortlink;
 mod svc;
 
 #[tokio::main]
@@ -20,12 +22,22 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer().with_target(false))
         .init();
 
-    // Loading settings.
+    // Load settings.
     let settings = Settings::new().expect("can load settings");
+
+    // Connect to database.
+    let db = PgPoolOptions::new()
+        .max_connections(3)
+        .connect(&settings.database.url)
+        .await
+        .expect("can connect to postgresql");
+
+    sqlx::migrate!().run(&db).await.expect("db migrations succeed");
 
     // Configure base router.
     let app = Router::new()
         .nest("/notify", notify::router(&settings))
+        .nest("/shortlink", shortlink::router(&settings, db))
         .route("/", get(|| async { "You've found your waypoint, Axum." }));
 
     // Launch server.
