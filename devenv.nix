@@ -1,32 +1,27 @@
 { pkgs, ... }:
-
+let
+  pgHost = "127.0.01";
+  pgPort = 15432;
+in
 {
-  # https://devenv.sh/basics/
-  env.GREET = "devenv";
+  env.M_DATABASE_URL = "postgresql://${pgHost}:${toString pgPort}";
 
   # https://devenv.sh/packages/
   packages = [
     pkgs.nomad
     pkgs.openssl_3_0.dev
-    pkgs.cargo-edit
     pkgs.pkg-config
-    pkgs.rustup
     pkgs.waypoint
   ];
 
-  enterShell = ''
-    git --version
-  '';
+  languages.rust = {
+    enable = true;
+    version = "stable";
+  };
 
-  # https://devenv.sh/languages/
-  # languages.nix.enable = true;
-
-  # https://devenv.sh/scripts/
-  # scripts.hello.exec = "echo hello from $GREET";
-
-  # https://devenv.sh/pre-commit-hooks/
-  # pre-commit.hooks.shellcheck.enable = true;
-
-  # https://devenv.sh/processes/
-  # processes.ping.exec = "ping example.com";
+  services.postgres = {
+    enable = true;
+    listen_addresses = pgHost;
+    port = pgPort;
+  };
 }
