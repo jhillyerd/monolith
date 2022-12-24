@@ -33,11 +33,12 @@ pub struct Settings {
 const CONFIG_FILE: &str = "settings.toml";
 
 impl Settings {
-    pub fn new() -> Result<Self, ConfigError> {
+    pub fn new(settings_file: Option<&str>) -> Result<Self, ConfigError> {
+        let settings_file = settings_file.unwrap_or(CONFIG_FILE);
         let cfg = Config::builder()
             .set_default("server.port", "3000")?
             .set_default("mail.host", "localhost")?
-            .add_source(File::new(CONFIG_FILE, FileFormat::Toml))
+            .add_source(File::new(settings_file, FileFormat::Toml))
             .add_source(Environment::with_prefix("M").separator("_"))
             .build()?;
 

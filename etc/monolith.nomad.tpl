@@ -41,6 +41,7 @@ job "monolith" {
       config {
         image = "${artifact.image}:${artifact.tag}"
         ports = ["http"]
+        args = ["/local/settings.toml"]
       }
 
       env {
@@ -61,6 +62,25 @@ job "monolith" {
       logs {
         max_files = 10
         max_file_size = 5
+      }
+
+      template {
+        data = <<EOT
+[server]
+port = {{env "NOMAD_PORT_http"}}
+
+[database]
+url = "postgresql://monolith:{{key "secrets/monolith/postgres"}}@skynas.home.arpa:54321/monolith"
+
+[mail]
+host = "nexus.home.arpa"
+
+[home_assistant]
+url = "http://homeassistant.home.arpa:8123"
+token = "{{key "secrets/monolith/homeassistant"}}"
+EOT
+
+        destination = "local/settings.toml"
       }
     }
   }

@@ -1,4 +1,4 @@
-use std::net::SocketAddr;
+use std::{net::SocketAddr, env};
 
 use axum::{routing::get, Router};
 use sqlx::postgres::PgPoolOptions;
@@ -23,7 +23,9 @@ async fn main() {
         .init();
 
     // Load settings.
-    let settings = Settings::new().expect("can load settings");
+    let args: Vec<String> = env::args().collect();
+    let settings_file = args.get(1).map(|s| s.as_str());
+    let settings = Settings::new(settings_file).expect("can load settings");
 
     // Connect to database.
     let db = PgPoolOptions::new()
