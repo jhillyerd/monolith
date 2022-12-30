@@ -1,14 +1,21 @@
+variable "image_tag" {
+  type = string
+}
+
 job "monolith" {
   datacenters = ["skynet"]
   type = "service"
 
-  meta = {
-    # Allow Waypoint to detect release URL.
-    "waypoint.hashicorp.com/release_url" = "https://monolith.bytemonkey.org"
-  }
-
   group "monolith" {
     count = 1
+
+    update {
+      canary = 1
+      auto_promote = true
+      auto_revert = true
+      healthy_deadline = "1m"
+      progress_deadline = "5m"
+    }
 
     network {
       port "http" { to = 3000 }
@@ -39,19 +46,9 @@ job "monolith" {
       driver = "docker"
 
       config {
-        image = "${artifact.image}:${artifact.tag}"
+        image = "dockreg.bytemonkey.org/monolith:${var.image_tag}"
         ports = ["http"]
         args = ["/local/settings.toml"]
-      }
-
-      env {
-        %{ for k,v in entrypoint.env ~}
-        ${k} = "${v}"
-        %{ endfor ~}
-
-        # Ensure we set PORT for the URL service. This is only necessary
-        # if we want the URL service to function.
-        PORT = 3000
       }
 
       resources {

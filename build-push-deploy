@@ -1,0 +1,36 @@
+#!/usr/bin/env fish
+# build-push-deploy:
+#   builds docker image, pushes to registry, deploys nomad job
+
+set name "monolith"
+set registry "dockreg.bytemonkey.org"
+
+function notice -a text
+  set_color -r
+  echo "### $text"
+  set_color normal
+end
+
+if test "$NOMAD_ADDR" = "" -o "$NOMAD_TOKEN" = ""
+  echo "ERROR: Nomad enviroment variables not set"
+  exit 1
+end
+
+if not git diff HEAD --quiet
+  echo "WARNING: git working dir is dirty"
+  set refsuffix (date "+-dirty-%s") 
+  sleep 1
+end
+
+set gitref (git rev-parse --short HEAD)
+set gitref $gitref$refsuffix
+set imagepath $registry/$name:$gitref
+
+notice "Building $imagepath"
+docker build . -t $imagepath; or return
+
+notice "Pushing $imagepath"
+docker push $imagepath; or return
+
+notice "Deploying $imagepath"
+nomad job run -var image_tag=$gitref etc/$name.nomad.hcl

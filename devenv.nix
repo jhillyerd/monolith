@@ -11,7 +11,6 @@ in
     pkgs.nomad
     pkgs.openssl_3_0.dev
     pkgs.pkg-config
-    pkgs.waypoint
   ];
 
   languages.rust = {
