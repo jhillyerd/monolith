@@ -1,4 +1,4 @@
-use config::{Config, ConfigError, File, FileFormat, Environment};
+use config::{Config, ConfigError, Environment, File, FileFormat};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Clone)]
