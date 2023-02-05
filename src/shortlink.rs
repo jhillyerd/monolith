@@ -1,17 +1,10 @@
 use axum::{extract::State, http::StatusCode, response::IntoResponse, routing::get, Router};
-use sqlx::{FromRow, Pool, Postgres};
+use sqlx::FromRow;
 
-use crate::settings::Settings;
+use crate::svc;
 
-#[derive(Clone)]
-struct AppState {
-    db: Pool<Postgres>,
-}
-
-pub fn router(_settings: &Settings, db: Pool<Postgres>) -> Router {
-    let state = AppState { db };
-
-    Router::new().route("/list", get(list)).with_state(state)
+pub fn router() -> Router<svc::State> {
+    Router::new().route("/list", get(list))
 }
 
 #[derive(Debug, FromRow)]
@@ -20,7 +13,7 @@ struct Shortlink {
     url: String,
 }
 
-async fn list(State(state): State<AppState>) -> impl IntoResponse {
+async fn list(State(state): State<svc::State>) -> impl IntoResponse {
     match sqlx::query_as::<_, Shortlink>("select name, url from shortlinks")
         .fetch_all(&state.db)
         .await

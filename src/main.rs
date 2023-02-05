@@ -1,10 +1,10 @@
-use std::{net::SocketAddr, env};
+use std::{env, net::SocketAddr};
 
 use axum::{routing::get, Router};
 use sqlx::postgres::PgPoolOptions;
 use tracing_subscriber::{prelude::*, EnvFilter};
 
-use crate::settings::Settings;
+use crate::{settings::Settings, svc::homeassistant::HomeAssistant};
 
 mod notify;
 mod settings;
@@ -34,13 +34,26 @@ async fn main() {
         .await
         .expect("can connect to postgresql");
 
-    sqlx::migrate!().run(&db).await.expect("db migrations succeed");
+    sqlx::migrate!()
+        .run(&db)
+        .await
+        .expect("db migrations succeed");
+
+    let homeassistant = HomeAssistant::new(&settings.home_assistant);
+    let mailer: svc::SmtpTx = svc::SmtpTx::builder_dangerous(&settings.mail.host).build();
+
+    let state = svc::State {
+        homeassistant,
+        mailer,
+        db,
+    };
 
     // Configure base router.
     let app = Router::new()
-        .nest("/notify", notify::router(&settings))
-        .nest("/shortlink", shortlink::router(&settings, db))
-        .route("/", get(|| async { "You've found your waypoint, Axum." }));
+        .nest("/notify", notify::router())
+        .nest("/shortlink", shortlink::router())
+        .route("/", get(|| async { "You've found your waypoint, Axum." }))
+        .with_state(state);
 
     // Launch server.
     let addr = SocketAddr::from(([0, 0, 0, 0], settings.server.port));

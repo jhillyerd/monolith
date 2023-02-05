@@ -1,33 +1,12 @@
 use axum::{extract::State, http::StatusCode, response::IntoResponse, routing::post, Json, Router};
-use lettre::{AsyncSmtpTransport, Tokio1Executor};
 use serde::Deserialize;
 
-use crate::{
-    settings::Settings,
-    svc::{self, homeassistant::HomeAssistant},
-};
+use crate::svc;
 
-type SmtpTx = AsyncSmtpTransport<Tokio1Executor>;
-
-#[derive(Clone)]
-struct AppState {
-    homeassistant: HomeAssistant,
-    mailer: SmtpTx,
-}
-
-pub fn router(settings: &Settings) -> Router {
-    let homeassistant = HomeAssistant::new(&settings.home_assistant);
-    let mailer: SmtpTx = SmtpTx::builder_dangerous(&settings.mail.host).build();
-
-    let state = AppState {
-        homeassistant,
-        mailer,
-    };
-
+pub fn router() -> Router<svc::State> {
     Router::new()
         .route("/mail", post(mail))
         .route("/text", post(text))
-        .with_state(state)
 }
 
 #[derive(Deserialize)]
@@ -37,7 +16,10 @@ struct Notification {
     url: Option<String>,
 }
 
-async fn mail(State(state): State<AppState>, Json(note): Json<Notification>) -> impl IntoResponse {
+async fn mail(
+    State(state): State<svc::State>,
+    Json(note): Json<Notification>,
+) -> impl IntoResponse {
     if let Err(err) = svc::mail::send_alert(
         &state.mailer,
         &note.subject.unwrap_or(String::from("Notification")),
@@ -52,7 +34,10 @@ async fn mail(State(state): State<AppState>, Json(note): Json<Notification>) -> 
     (StatusCode::OK, "Sent")
 }
 
-async fn text(State(state): State<AppState>, Json(note): Json<Notification>) -> impl IntoResponse {
+async fn text(
+    State(state): State<svc::State>,
+    Json(note): Json<Notification>,
+) -> impl IntoResponse {
     state
         .homeassistant
         .notify(
