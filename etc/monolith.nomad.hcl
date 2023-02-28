@@ -62,6 +62,7 @@ job "monolith" {
       }
 
       template {
+        change_mode = "restart"
         data = <<EOT
 [server]
 port = {{env "NOMAD_PORT_http"}}
@@ -70,10 +71,12 @@ port = {{env "NOMAD_PORT_http"}}
 url = "postgresql://monolith:{{key "secrets/monolith/postgres"}}@skynas.home.arpa:54321/monolith"
 
 [mail]
-host = "nexus.home.arpa"
+host = "mail.home.arpa"
 
 [home_assistant]
-url = "http://homeassistant.home.arpa:8123"
+{{- range service "homeassistant-ui" }}
+url = "http://{{ .Address }}:{{ .Port }}"
+{{- end }}
 token = "{{key "secrets/monolith/homeassistant"}}"
 EOT
 
