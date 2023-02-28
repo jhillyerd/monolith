@@ -23,7 +23,7 @@ if not git diff HEAD --quiet
 end
 
 set gitref (git rev-parse --short HEAD)
-set gitref $gitref$refsuffix
+set gitref "$gitref$refsuffix"
 set imagepath $registry/$name:$gitref
 
 notice "Building $imagepath"
