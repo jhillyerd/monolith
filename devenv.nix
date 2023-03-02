@@ -15,7 +15,7 @@ in
 
   languages.rust = {
     enable = true;
-    version = "stable";
+    channel = "stable";
   };
 
   services.postgres = {
