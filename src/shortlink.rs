@@ -1,3 +1,4 @@
+use askama::Template;
 use axum::{extract::State, http::StatusCode, response::IntoResponse, routing::get, Router};
 use sqlx::FromRow;
 
@@ -13,20 +14,21 @@ struct Shortlink {
     url: String,
 }
 
-async fn list(State(state): State<svc::State>) -> impl IntoResponse {
+#[derive(Template)]
+#[template(path = "shortlink/list.html")]
+struct ListTemplate {
+    links: Vec<Shortlink>,
+}
+
+async fn list(State(state): State<svc::State>) -> Result<impl IntoResponse, StatusCode> {
     match sqlx::query_as::<_, Shortlink>("select name, url from shortlinks")
         .fetch_all(&state.db)
         .await
     {
-        Ok(links) => {
-            for link in links {
-                tracing::info!("link: {0} -> {1}", link.name, link.url);
-            }
-            (StatusCode::OK, "Hi")
-        }
+        Ok(links) => Ok(ListTemplate { links }),
         Err(err) => {
             tracing::error!("Failed to database: {err}");
-            (StatusCode::INTERNAL_SERVER_ERROR, "Failed to database")
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     }
 }

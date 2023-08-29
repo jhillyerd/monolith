@@ -1,0 +1,28 @@
+<title>Shortlink List</title>
+
+<style>
+  table {
+    font-family: mono;
+    text-align: left;
+  }
+</style>
+
+<body>
+  <h1>Shortlinks</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>URL</th>
+      </tr>
+    </thead>
+
+    {% for link in links %}
+    <tr>
+      <td>{{ link.name }}</td>
+      <td>{{ link.url }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</body>

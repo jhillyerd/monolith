@@ -2,8 +2,11 @@
 edition = "2021"
 name = "monolith"
 version = "0.1.0"
+
 [dependencies]
 anyhow = "1.0.57"
+askama = { version = "0.12.0", features = ["with-axum"] }
+askama_axum = "0.3.0"
 axum = "0.6.1"
 config = "0.13.1"
 lettre = { version = "0.10.1", features = ["tokio1", "tokio1-native-tls"] }
