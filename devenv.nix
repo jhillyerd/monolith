@@ -8,6 +8,7 @@ in
 
   # https://devenv.sh/packages/
   packages = [
+    pkgs.cargo-watch
     pkgs.nomad
     pkgs.openssl_3_0.dev
     pkgs.pkg-config
