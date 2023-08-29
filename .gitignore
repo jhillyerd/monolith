@@ -17,6 +17,6 @@ Cargo.lock
 /target
 
 # Devenv
+.direnv
 .devenv*
 devenv.local.nix
-
