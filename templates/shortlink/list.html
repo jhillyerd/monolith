@@ -1,28 +1,39 @@
-<title>Shortlink List</title>
+{% extends "base.html" %}
 
+{% block title%}Shortlink List{% endblock %}
+
+{% block head %}
 <style>
-  table {
+  table, th, td {
+    border-collapse: collapse;
+    border: 1px solid #333;
     font-family: mono;
     text-align: left;
   }
+
+  th, td {
+    padding: 5px;
+  }
 </style>
+{% endblock %}
 
-<body>
-  <h1>Shortlinks</h1>
+{% block content %}
+<h1>Shortlinks</h1>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>URL</th>
-      </tr>
-    </thead>
-
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>URL</th>
+    </tr>
+  </thead>
+  <tbody>
     {% for link in links %}
     <tr>
       <td>{{ link.name }}</td>
-      <td>{{ link.url }}</td>
+      <td><a href="{{ link.url }}" target="_blank">{{ link.url }}</a></td>
     </tr>
     {% endfor %}
-  </table>
-</body>
+  </tbody>
+</table>
+{% endblock %}
