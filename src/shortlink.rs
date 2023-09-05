@@ -23,6 +23,12 @@ struct Shortlink {
 }
 
 #[derive(Template)]
+#[template(path = "error.html")]
+struct ErrorTemplate {
+    message: String,
+}
+
+#[derive(Template)]
 #[template(path = "shortlink/list.html")]
 struct ListTemplate {
     links: Vec<Shortlink>,
@@ -37,10 +43,11 @@ async fn go(
         .fetch_optional(&state.db)
         .await
     {
-        Ok(Some(link)) => Ok(Redirect::to(&link.url)),
+        Ok(Some(link)) => Ok(Redirect::to(&link.url).into_response()),
         Ok(None) => {
-            tracing::error!("No results for link named {:?}", key);
-            Err(StatusCode::INTERNAL_SERVER_ERROR)
+            let message = format!("No results for link named {:?}", key);
+            tracing::warn!(message);
+            Ok(ErrorTemplate { message }.into_response())
         }
         Err(err) => {
             tracing::error!("Failed to database: {err}");
